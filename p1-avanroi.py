@@ -164,6 +164,7 @@ def openfiles():
     ls=[]
     for k in keys:
         ls.append(int(k,0))
+    f.close()
     #ls contains proper ints
     keys=ls
     f = open(iv,'r')
@@ -173,6 +174,7 @@ def openfiles():
     for k in ivs:
         ls.append(int(k,0))
     ivs=ls
+    f.close()
     return ivs,keys
 
 ivs,keys=openfiles()
@@ -259,6 +261,7 @@ def run():
     writeFile = open(keystream,"w")
     for x in newtext:
         writeFile.write("0x%0.8x\n"%x)
+    writeFile.close()
 run()
 initMode(0)
 #print("0x%x"%temp[15])
