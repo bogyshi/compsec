@@ -11,10 +11,10 @@ except:
 def mulX(v,c):
     offset = 7
     mask = 1<<7
-    if(v & mask):
-        result = ((v<<1)&255)^c
+    if(v & 0x80):
+        result = ((v<<1)&0xff)^c
     else:
-        result = (v<<1)&255
+        result = (v<<1)&0xff
     return result
 
 def mulY(v,i,c):
@@ -24,35 +24,11 @@ def mulY(v,i,c):
         return mulX(mulY(v,i-1,c),c)
 
 def mul(c): #these may be flipped!
-    return (mulY(c,23,int("0xA9",0))<<24)+(mulY(c,245,int("0xA9",0))<<16)+(mulY(c,48,int("0xA9",0))<<8)+(mulY(c,239,int("0xA9",0)))
+    return (mulY(c,23,0xA9)<<24)+(mulY(c,245,0xA9)<<16)+(mulY(c,48,0xA9)<<8)+(mulY(c,239,0xA9))
 
 def div(c):
-    return (mulY(c,16,int("0xA9",0))<<24)+(mulY(c,39,int("0xA9",0))<<16)+(mulY(c,6,int("0xA9",0))<<8)+(mulY(c,64,int("0xA9",0)))
+    return (mulY(c,16,0xA9)<<24)+(mulY(c,39,0xA9)<<16)+(mulY(c,6,0xA9)<<8)+(mulY(c,64,0xA9))
 
-'''def initSBox(sR, sQ):
-x = "0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75,0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0, 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84,0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B, 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF,0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85, 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8,0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5, 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2,0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17, 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73,0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88, 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB,0xE0, 0x32, 0x3A, 0x0A, 0x49, 0x06, 0x24, 0x5C, 0xC2, 0xD3, 0xAC, 0x62, 0x91, 0x95, 0xE4, 0x79,0xE7, 0xC8, 0x37, 0x6D, 0x8D, 0xD5, 0x4E, 0xA9, 0x6C, 0x56, 0xF4, 0xEA, 0x65, 0x7A, 0xAE, 0x08,0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xA6, 0xB4, 0xC6, 0xE8, 0xDD, 0x74, 0x1F, 0x4B, 0xBD, 0x8B, 0x8A,0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E,0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16"
-    y="25,24,73,67,D7,AE,5C,30,A4,EE,6E,CB,7D,B5,82,DB,E4,8E,48,49,4F,5D,6A,78,70,88,E8,5F,5E,84,65,E2,D8,E9,CC,ED,40,2F,11,28,57,D2,AC,E3,4A,15,1B,B9,B2,80,85,A6,2E,02,47,29,07,4B,0E,C1,51,AA,89,D4,CA,01,46,B3,EF,DD,44,7B,C2,7F,BE,C3,9F,20,4C,64,83,A2,68,42,13,B4,41,CD,BA,C6,BB,6D,4D,71,21,F4,8D,B0,E5,93,FE,8F,E6,CF,43,45,31,22,37,36,96,FA,BC,0F,08,52,1D,55,1A,C5,4E,23,69,7A,92,FF,5B,5A,EB,9A,1C,A9,D1,7E,0D,FC,50,8A,B6,62,F5,0A,F8,DC,03,3C,0C,39,F1,B8,F3,3D,F2,D5,97,66,81,32,A0,00,06,CE,F6,EA,B7,17,F7,8C,79,D6,A7,BF,8B,3F,1F,53,63,75,35,2C,60,FD,27,D3,94,A5,7C,A1,05,58,2D,BD,D9,C7,AF,6B,54,0B,E0,38,04,C8,9D,E7,14,B1,87,9C,DF,6F,F9,DA,2A,C4,59,16,74,91,AB,26,61,76,34,2B,AD,99,FB,72,EC,33,12,DE,98,3B,C0,9B,3E,18,10,3A,56,E1,77,C9,1E,9E,95,A3,90,19,A8,6C,09,D0,F0,86".split(",")
-    y2 = []
-    for temp in y:
-        y2.append("0x"+temp)
-
-    i=0
-    j=0
-    for l in x.split(","):
-        if(j==16):
-            i=i+1
-            j=0
-        sR[i].append(int(l,0))
-        j=j+1
-    i=0
-    j=0
-    for l in y2:
-        if(j==16):
-            i=i+1
-            j=0
-        sQ[i].append(int(l,0))
-        j=j+1
-'''
 def initMode(F):
     s_0 = LFSR[0]
     s_11=LFSR[11]
@@ -70,22 +46,32 @@ def initMode(F):
     s_112 = s_11&(255<<8)
     s_113 = s_11&(255)
 
-    p1=(s_01<<8) + (s_02<<8)+(s_03<<8)
-    p2=mul(s_00>>24)
+    p1=(s_01<<8) +(s_02<<8)+(s_03<<8)
+    p2=mul((s_00>>24)&0xff)
     p3 = s_2
     p4=(s_110>>8)+(s_111>>8)+(s_112>>8)
     p5 = div(s_113)
     p6 = F
     v=(p1)^(p2)^p3^(p4)^p5^p6
     #print("0x%x"%v)
-    print("0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x"%(p1,p2,p3,p4,p5,p6,v))
-    i = 1
-    while(i<16):
-        if(i<15):
-            LFSR[i-1]=LFSR[i]
-        else:
-            LFSR[i]=v
-        i=i+1
+    #print("0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x"%(p1,p2,p3,p4,p5,p6,v))
+
+    LFSR[0]=LFSR[1]
+    LFSR[1]=LFSR[2]
+    LFSR[2]=LFSR[3]
+    LFSR[3]=LFSR[4]
+    LFSR[4]=LFSR[5]
+    LFSR[5]=LFSR[6]
+    LFSR[6]=LFSR[7]
+    LFSR[7]=LFSR[8]
+    LFSR[8]=LFSR[9]
+    LFSR[9]=LFSR[10]
+    LFSR[10]=LFSR[11]
+    LFSR[11]=LFSR[12]
+    LFSR[12]=LFSR[13]
+    LFSR[13]=LFSR[14]
+    LFSR[14]=LFSR[15]
+    LFSR[15]=v
     #print (LFSR)
     #return LFSR
 
@@ -106,12 +92,11 @@ def keysMode():
 
     v=((s_01<<8) + (s_02<<8)+(s_03<<8))^(mul((s_00>>24)))^s_2^((s_110>>8)+(s_111>>8)+(s_112>>8))^div(s_113)
     i = 1
-    while(i<16):
-        if(i<15):
-            LFSR[i-1]=LFSR[i]
-        else:
-            LFSR[i]=v
+    while(i<15):
+        LFSR[i-1]=LFSR[i]
         i=i+1
+    LFSR[14]=LFSR[15]
+    LFSR[15]=v
     #return LFSR
 
 def getSR(w):
@@ -128,10 +113,10 @@ def S1(w):
     w_2 = (w&(255<<8))>>8
     w_3 = (w&(255))
 
-    r_0 = (mulX(getSR(w_0),0x1B))^getSR(w_1)^getSR(w_2)^(mulX(getSR(w_3),int("0x1B",0)))^getSR(w_3)
-    r_1 = (mulX(getSR(w_0),int("0x1B",0)))^getSR(w_0)^(mulX(getSR(w_1),int("0x1B",0)))^getSR(w_2)^getSR(w_3)
-    r_2 = getSR(w_0)^(mulX(getSR(w_1),int("0x1B",0)))^getSR(w_1)^(mulX(getSR(w_2),int("0x1B",0)))^getSR(w_3)
-    r_3 = getSR(w_0)^getSR(w_1)^(mulX(getSR(w_2),int("0x1B",0)))^getSR(w_2)^(mulX(getSR(w_3),int("0x1B",0)))
+    r_0 = (mulX(getSR(w_0),0x1B))^(getSR(w_1))^(getSR(w_2))^(mulX(getSR(w_3),0x1B))^(getSR(w_3))
+    r_1 = (mulX(getSR(w_0),0x1B))^getSR(w_0)^(mulX(getSR(w_1),0x1B))^getSR(w_2)^getSR(w_3)
+    r_2 = getSR(w_0)^(mulX(getSR(w_1),0x1B))^getSR(w_1)^(mulX(getSR(w_2),0x1B))^getSR(w_3)
+    r_3 = getSR(w_0)^getSR(w_1)^(mulX(getSR(w_2),0x1B))^getSR(w_2)^(mulX(getSR(w_3),0x1B))
 
     rms=(r_0<<24)
     rmss=(r_1<<16)
@@ -141,16 +126,16 @@ def S1(w):
     #print("0x%x"%(rms + rmss + rmsl + rml))
     return rms + rmss + rmsl + rml
 
-def S_2(w):
+def S2(w):
     w_0 = (w&(255<<24))>>24
     w_1 = (w&(255<<16))>>16
     w_2 = (w&(255<<8))>>8
     w_3 = (w&(255))
 
-    r_0 = (mulX(getSQ(w_0),int("0x69",0)))^getSQ(w_1)^getSQ(w_2)^(mulX(getSQ(w_3),int("0x69",0)))^getSQ(w_3)
-    r_1 = (mulX(getSQ(w_0),int("0x69",0)))^getSQ(w_0)^(mulX(getSQ(w_1),int("0x69",0)))^getSQ(w_2)^getSQ(w_3)
-    r_2 = getSQ(w_0)^(mulX(getSQ(w_1),int("0x69",0)))^getSQ(w_1)^(mulX(getSQ(w_2),int("0x69",0)))^getSQ(w_3)
-    r_3 = getSQ(w_0)^getSQ(w_1)^(mulX(getSQ(w_2),int("0x69",0)))^getSQ(w_2)^(mulX(getSQ(w_3),int("0x69",0)))
+    r_0 = (mulX(getSQ(w_0),0x69))^getSQ(w_1)^getSQ(w_2)^(mulX(getSQ(w_3),0x69))^getSQ(w_3)
+    r_1 = (mulX(getSQ(w_0),0x69))^getSQ(w_0)^(mulX(getSQ(w_1),0x69))^getSQ(w_2)^getSQ(w_3)
+    r_2 = getSQ(w_0)^(mulX(getSQ(w_1),0x69))^getSQ(w_1)^(mulX(getSQ(w_2),0x69))^getSQ(w_3)
+    r_3 = getSQ(w_0)^getSQ(w_1)^(mulX(getSQ(w_2),0x69))^getSQ(w_2)^(mulX(getSQ(w_3),0x69))
 
     rms=(r_0<<24)
     rmss=(r_1<<16)
@@ -164,11 +149,11 @@ def clockFSM():
     s15 = LFSR[15]
     s5 = LFSR[5]
     mask = (1<<31)-1
-    F=((s15+RSM[0])&mask)^RSM[1]
-    r = (RSM[1]+(RSM[2]^s5))&mask
-    RSM[2]=S_2(RSM[1])
+    F=((s15+RSM[0])&0xFFFFFFFF)^RSM[1]
+    r = (RSM[1]+(RSM[2]^s5))&0xFFFFFFFF
+    RSM[2]=S2(RSM[1])
     RSM[1]=S1(RSM[0])
-    RSM[0]=r 
+    RSM[0]=r
     return F
 #FINISH 4.1 4.2 5.1 5.4 5.5 5.6+
 
@@ -180,12 +165,10 @@ def openfiles():
     for k in keys:
         ls.append(int(k,0))
     #ls contains proper ints
-    print (keys)
     keys=ls
     f = open(iv,'r')
     ivs = f.readline().split(" ")
     ivs[-1]=(ivs[-1][:-1]) ## remove new line character from line
-    print (ivs)
     ls=[]
     for k in ivs:
         ls.append(int(k,0))
@@ -197,8 +180,9 @@ global LFSR
 LFSR=[0]*16# holds sixteen 32 bit registers, or ints
 RSM=[0]*3#holds 3 32 bit registers, or ints
 
-allones=(1<<31)-1
-#print("0x%x"%allones)#checks out
+allones=0xFFFFFFFF
+#print("0x%x"%mulY(0x96,1,0x1B)) # checks out
+#print("0x%x"%mulX(0x96,0x1B))#checks out
 LFSR[15]=keys[3]^ivs[0]
 LFSR[14]=keys[2]
 LFSR[13]=keys[1]
@@ -260,7 +244,7 @@ sQ=[
 def run():
     i=0
     for i in range(32):
-        print(i)
+        #print(i)
         F=clockFSM()
         initMode(F)
     clockFSM()
@@ -268,13 +252,13 @@ def run():
     i=0
     newtext=[]
     for i in range(int(n)):
-        print(i)
+        #print(i)
         F=clockFSM()
         newtext.append(F^LFSR[0])
         keysMode()
-    print (newtext)
+    writeFile = open(keystream,"w")
     for x in newtext:
-        print("0x%x"%x)
+        writeFile.write("0x%0.8x\n"%x)
 run()
 initMode(0)
 #print("0x%x"%temp[15])
